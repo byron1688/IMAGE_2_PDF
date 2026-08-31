@@ -1,0 +1,33 @@
+# OS
+.DS_Store
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+*.log
+
+# Rust / Tauri (if used)
+target/
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# Credentials / secrets (never commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+secrets.*
+*secret*
+*credential*
+*.token
+.npmrc
+
+# Local data / build outputs
+*.pdf
+output/
+exports/

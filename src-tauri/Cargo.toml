@@ -1,0 +1,36 @@
+[package]
+name = "image-2-pdf"
+version = "0.1.0"
+description = "Local desktop tool to convert images to a single PDF"
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "image_2_pdf_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+image = { version = "0.24", default-features = false, features = ["jpeg", "png", "webp", "bmp", "gif", "tiff"] }
+base64 = "0.22"
+uuid = { version = "1", features = ["v4"] }
+printpdf = { version = "0.7", default-features = false, features = ["embedded_images"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# Build libheif itself from the crate's embedded sources and link it statically,
+# so release apps never depend on a user's Homebrew installation.
+libheif-rs = { version = "2.7", default-features = false, features = ["v1_17", "embedded-libheif"], optional = true }
+
+[dev-dependencies]
+lopdf = "0.32"
+tempfile = "3"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+heic = ["dep:libheif-rs"]

@@ -1,70 +1,79 @@
 # IMAGE_2_PDF
 
-一个把图片合并导出成 PDF 的本地桌面小工具，支持 **macOS** 和 **Windows**。基于 Tauri v2 + React + Rust，安装包由 GitHub Actions 自动构建。
+IMAGE_2_PDF is a small local desktop application that combines images into a single PDF. It supports macOS and Windows, is built with Tauri v2, React, and Rust, and uses GitHub Actions to build installers.
 
-## 功能
+## Features
 
-- **导入照片**：点击 "Add images" 按钮，或直接把文件**拖拽（drag & drop）**到窗口任意位置。
-- **调整顺序**：缩略图网格中拖动重新排序（支持键盘方向键）。
-- **每张图片可编辑**：90° 旋转（CW / CCW）、自由裁剪。编辑是非破坏性的，参数保存在内存中，导出时才应用。
-- **预览**：缩略图网格，序号标记当前顺序。
-- **中英文界面**：顶部可在 English / 中文之间切换，选择会保存在本机。
-- **导入记录**：记录最近 50 次导入的时间、文件名、成功数和跳过数，可在应用内查看或清空。
-- **导出**：一键导出为**单个 A4 PDF**（纵向；图片为横向时该页自动切换为横向），保持宽高比 contain-fit 到 A4 页面。
-- **本地运行**：不发布到应用商店，双击安装即可使用。
+- **Import photos:** Click **Add images**, or drag and drop files anywhere in the application window.
+- **Reorder pages:** Drag thumbnails into the desired order. Keyboard reordering with the arrow keys is also supported.
+- **Edit individual images:** Rotate images 90 degrees clockwise or counterclockwise and crop them freely. Edits are non-destructive and are applied only during export.
+- **Preview pages:** Review imported images and their page numbers in the thumbnail grid.
+- **English and Chinese interface:** Switch between English and Chinese from the top bar. The selected language is saved locally.
+- **Import history:** View or clear the 50 most recent imports, including the import time, file names, number of successful files, and number of skipped files.
+- **Export one PDF:** Export all images as a single A4 PDF. Images keep their aspect ratio and are fitted inside each page; pages automatically use landscape orientation for landscape images.
+- **Runs locally:** No App Store or Microsoft Store installation is required.
 
-## 支持的图片格式
+## Supported Image Formats
 
-| 格式 | macOS | Windows |
+| Format | macOS | Windows |
 | --- | --- | --- |
-| JPG / JPEG | ✅ | ✅ |
-| PNG | ✅ | ✅ |
-| WebP | ✅ | ✅ |
-| BMP | ✅ | ✅ |
-| GIF（取第一帧） | ✅ | ✅ |
-| TIFF | ✅ | ✅ |
-| HEIC / HEIF | ✅（release 构建） | ⚠️ 计划中 |
+| JPG / JPEG | Yes | Yes |
+| PNG | Yes | Yes |
+| WebP | Yes | Yes |
+| BMP | Yes | Yes |
+| GIF (first frame) | Yes | Yes |
+| TIFF | Yes | Yes |
+| HEIC / HEIF | Yes (release builds) | Planned |
 
-> **HEIC / HEIF**：macOS release 使用 Cargo `heic` feature 构建内嵌 `libheif` 后端，并通过 macOS 自带的 ImageIO 完成像素解码，因此成品不链接 Homebrew dylib。Windows v1 暂不支持 HEIC；Android 常见的 JPG / PNG / WebP 均已支持。
+> **HEIC / HEIF:** macOS release builds enable the Cargo `heic` feature. Pixel decoding uses the built-in macOS ImageIO framework, so the distributed application does not depend on Homebrew libraries at runtime. HEIC is not supported in the Windows v1 build. Common Android formats such as JPG, PNG, and WebP are supported on both platforms.
 
-## 开发（本地跑）
+## Local Development
 
-先决条件：
-- Node.js 20+
-- Rust stable（`rustup`）
-- 平台构建工具：macOS 需要 Xcode Command Line Tools；Windows 需要 MSVC Build Tools + WebView2；Linux 需要 `libwebkit2gtk-4.1-dev` 等（见 `.github/workflows/ci.yml`）。
+Prerequisites:
+
+- Node.js 20 or later
+- The stable Rust toolchain, installed with `rustup`
+- Platform build tools:
+  - macOS: Xcode Command Line Tools
+  - Windows: Microsoft Visual C++ Build Tools and WebView2
+  - Linux: `libwebkit2gtk-4.1-dev` and the other packages listed in `.github/workflows/ci.yml`
+
+Install the dependencies and start the development application:
 
 ```bash
 npm install
 npm run tauri dev
 ```
 
-## 本地打包
+## Building Locally
 
 ```bash
 npm run tauri build
 ```
 
-产物位于 `src-tauri/target/release/bundle/`：
-- macOS：`.dmg` / `.app`
-- Windows：`.msi` / `.exe`（NSIS）
+Build outputs are written to `src-tauri/target/release/bundle/`:
 
-## 通过 GitHub Actions 发布
+- macOS: `.dmg` and `.app`
+- Windows: `.msi` and NSIS `.exe`
 
-推一个 `v*.*.*` 的 tag 会触发 `.github/workflows/release.yml`，在 macOS（runner 原生架构）和 Windows runner 上并行构建，安装包作为 **draft Release** 的附件上传，检查后手动 publish 即可。也可以在 Actions 页面用 "Run workflow" 手动跑一次。
+## Publishing with GitHub Actions
+
+Pushing a tag that matches `v*.*.*` starts `.github/workflows/release.yml`. GitHub Actions builds the application on macOS and Windows and attaches the installers to a draft GitHub Release. Review the artifacts and publish the release manually when they are ready.
+
+The release workflow can also be started manually from the Actions page for a build-only test run.
 
 ```bash
 git tag v0.1.0
 git push origin v0.1.0
 ```
 
-## 未签名安装包提示
+## Unsigned Installer Notice
 
-v1 的安装包**未做代码签名**（未来再考虑 Apple Developer ID / Windows 代码签名证书）：
+Version 1 installers are not code-signed. Code signing with an Apple Developer ID and a Windows certificate may be added later.
 
-- **macOS**：首次打开会被 Gatekeeper 拦截。右键 App → **"打开"** → 再次点 **"打开"**；或到 *系统设置 → 隐私与安全性* 里点 "仍要打开"。
-- **Windows**：SmartScreen 会提示 "Windows 已保护你的电脑"。点击 **"更多信息"** → **"仍要运行"**。
+- **macOS:** Gatekeeper may block the application the first time it is opened. Right-click the application, select **Open**, and select **Open** again. Alternatively, use **System Settings > Privacy & Security > Open Anyway**.
+- **Windows:** SmartScreen may display a “Windows protected your PC” warning. Select **More info**, then **Run anyway**.
 
-## 状态
+## Project Status
 
-MVP 开发中。技术栈：Tauri v2、React + TypeScript、dnd-kit、react-easy-crop、Rust（`image` + `printpdf`）。
+The MVP is under development. The primary stack is Tauri v2, React, TypeScript, dnd-kit, react-easy-crop, Rust `image`, and printpdf.
